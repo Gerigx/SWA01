@@ -1,0 +1,13 @@
+----------------------------------------------------------------
+Mon Mar 31 18:06:04 CEST 2025:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.15.2.0 - (1873585): instance a816c00e-0195-ecf3-efe5-000007600000 
+on database directory C:\Users\stein\Documents\GitHub\SWA\swa01\SWA01\shoppingDB with class loader jdk.internal.loader.ClassLoaders$AppClassLoader@73d16e93 
+Loaded from file:/C:/Users/stein/.m2/repository/org/apache/derby/derby/10.15.2.0/derby-10.15.2.0.jar
+java.vendor=Oracle Corporation
+java.runtime.version=19.0.1+10-21
+user.dir=C:\Users\stein\Documents\GitHub\SWA\swa01\SWA01
+os.name=Windows 10
+os.arch=amd64
+os.version=10.0
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''
