@@ -7,9 +7,8 @@ public class Ware {
     private String name;
     private Geld preis;
     private String beschreibung;
-    private ProduktInformationen produktinfo;
+    private Produktinformation produktinfo;
 
-    // Konstruktor
     public Ware(long warennummer, String name, Geld preis, String beschreibung) {
         this.warennummer = warennummer;
         this.name = name;
@@ -17,7 +16,6 @@ public class Ware {
         this.beschreibung = beschreibung;
     }
 
-    // Getter und Setter
     public long getWarennummer() {
         return warennummer;
     }
@@ -60,10 +58,5 @@ public class Ware {
         if (o == null || getClass() != o.getClass()) return false;
         Ware ware = (Ware) o;
         return warennummer == ware.warennummer;
-    }
-
-    @Override
-    public int hashCode() {
-        return Long.hashCode(warennummer);
     }
 }
