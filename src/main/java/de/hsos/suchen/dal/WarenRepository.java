@@ -6,19 +6,18 @@ import java.util.List;
 
 import org.apache.derby.impl.sql.GenericColumnDescriptor;
 
-import de.hsos.suchen.bl.Ware;
 import de.hsos.suchen.bl.*;;
 
+
 public class WarenRepository {
-
     private WarenSuche suchAlgorithmus;
-
+    
     public WarenRepository() {
-        suchAlgorithmus = new KeywordMatching();
+        suchAlgorithmus = SuchAlgorithmus.getImplementation(SuchAlgorithmus.KEYWORD_MATCHING);
     }
     
-    public void setSuchAlgorithmus(WarenSuche suchAlgorithmus) {
-        this.suchAlgorithmus = suchAlgorithmus;
+    public void setSuchAlgorithmus(SuchAlgorithmus algo) {
+        this.suchAlgorithmus = SuchAlgorithmus.getImplementation(algo);
     }
 
     public boolean testConnection() {
