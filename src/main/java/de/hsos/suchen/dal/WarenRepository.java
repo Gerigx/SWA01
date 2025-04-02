@@ -1,6 +1,7 @@
 package de.hsos.suchen.dal;
 
 import java.sql.*;
+import de.hsos.suchen.bl.Ware;
 
 public class WarenRepository {
 
