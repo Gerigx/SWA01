@@ -4,12 +4,16 @@ package de.hsos.suchen.bl;
 
 public class Ware {
     private long warennummer;
+
+
     private String name;
-    private Geld preis;
+    private float preis;
     private String beschreibung;
     private Produktinformation produktinfo;
 
-    public Ware(long warennummer, String name, Geld preis, String beschreibung) {
+
+// daraus kann man eigentlich eine fabrik amchen
+    public Ware(long warennummer, String name, float preis, String beschreibung) {
         this.warennummer = warennummer;
         this.name = name;
         this.preis = preis;
@@ -20,6 +24,10 @@ public class Ware {
         return warennummer;
     }
 
+    public void setWarennummer(long warennummer) {
+        this.warennummer = warennummer;
+    }
+
     public String getName() {
         return name;
     }
@@ -28,11 +36,11 @@ public class Ware {
         this.name = name;
     }
 
-    public Geld getPreis() {
+    public float getPreis() {
         return preis;
     }
 
-    public void setPreis(Geld preis) {
+    public void setPreis(float preis) {
         this.preis = preis;
     }
 

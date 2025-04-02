@@ -1,9 +1,25 @@
 package de.hsos.suchen.dal;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.derby.impl.sql.GenericColumnDescriptor;
+
 import de.hsos.suchen.bl.Ware;
+import de.hsos.suchen.bl.*;;
 
 public class WarenRepository {
+
+    private WarenSuche suchAlgorithmus;
+
+    public WarenRepository() {
+        suchAlgorithmus = new KeywordMatching();
+    }
+    
+    public void setSuchAlgorithmus(WarenSuche suchAlgorithmus) {
+        this.suchAlgorithmus = suchAlgorithmus;
+    }
 
     public boolean testConnection() {
         try {
@@ -14,46 +30,127 @@ public class WarenRepository {
             return false;
         }
     }
+    
+    // CREATE
 
-    // CRUD Stuff
+    public boolean createWare(Ware ware) {
+        try {
+            Connection connection = DatabaseConnection.getConnection();
+            
+            PreparedStatement statement = connection.prepareStatement(
+                "INSERT INTO waren (name, preis, beschreibung) VALUES (?, ?, ?)",
+                Statement.RETURN_GENERATED_KEYS
+            );
+            
+            statement.setString(1, ware.getName());
+            statement.setFloat(2, ware.getPreis());
+            statement.setString(3, ware.getBeschreibung());
+            
+            int affectedRows = statement.executeUpdate();
+            
+            if (affectedRows == 0) {
+                statement.close();
+                connection.rollback();
+                return false;
+            }
+            
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                // affectedRow sollte mir ja meine ID geben?
+                ware.setWarennummer(generatedKeys.getLong(affectedRows));
+            }
+            
+            generatedKeys.close();
+            statement.close();
+            connection.commit();
+            
+            return true;
+        } catch (SQLException e) {
+            System.err.println("Fehler beim Erstellen der Ware: " + e.getMessage());
+            try {
+                DatabaseConnection.getConnection().rollback();
+            } catch (SQLException ex) {
+                System.err.println("Rollback fehlgeschlagen: " + ex.getMessage());
+            }
+            return false;
+        }
+    }
+    
 
-    // TESTMETHODE VON CLAUDE todo: -remove
+    // READ 
+
+
+    public List<Ware> findAllWaren() {
+
+        // alle waren in ein resultset batchen und returnen
+        // was wenn keine waren gefunden worden sind?
+
+        List<Ware> alleWaren = new ArrayList<>();
+        
+        try {
+            Connection connection = DatabaseConnection.getConnection();
+            Statement statement = connection.createStatement();
+            ResultSet rs = statement.executeQuery("SELECT * FROM waren");
+            
+            if (rs.next()) {
+                do {
+                    Ware ware = mapResultSetToWare(rs);
+                    alleWaren.add(ware);
+                } while (rs.next());
+            } else {
+                System.out.println("AH, keine Waren gefunden. Aber haben sie schonmal von Sylva gehört?");
+            }
+            
+            rs.close();
+            statement.close();
+            connection.commit();
+            
+        } catch (SQLException e) {
+            System.err.println("Fehler beim Abrufen aller Waren: " + e.getMessage());
+            try {
+                DatabaseConnection.getConnection().rollback();
+            } catch (SQLException ex) {
+                System.err.println("Rollback fehlgeschlagen: " + ex.getMessage());
+            }
+        }
+        
+        return alleWaren;
+    }
+    
     public Ware findById(long warenId) {
         try {
-            Connection conn = DatabaseConnection.getConnection();
+            Connection connection = DatabaseConnection.getConnection();
             
-            // SQL-Statement vorbereiten
-            PreparedStatement stmt = conn.prepareStatement(
+            PreparedStatement statement = connection.prepareStatement(
                 "SELECT * FROM waren WHERE warennummer = ?"
             );
-            stmt.setLong(1, warenId);
+            statement.setLong(1, warenId);
+
+            long warenID;
             
-            // Statement ausführen
-            ResultSet rs = stmt.executeQuery();
+            ResultSet rs = statement.executeQuery();
             
-            // Ergebnis verarbeiten
             if (rs.next()) {
                 Ware ware = mapResultSetToWare(rs);
                 
-                // Ressourcen schließen (Statement und ResultSet, nicht die Connection)
                 rs.close();
-                stmt.close();
-                
-                // Commit der Transaktion
-                conn.commit();
+                statement.close();
+                connection.commit();
+
+                warenID = ware.getWarennummer();
                 
                 return ware;
             }
             
-            // Ressourcen schließen
             rs.close();
-            stmt.close();
+            statement.close();
+
+            System.out.println("Die War mit der ID" + warenID + " wurde nicht im System gefunden, aber Sylva bekommt bald die defintiv edition!");
             
-            return null; // Keine Ware gefunden
+            return null;
         } catch (SQLException e) {
             System.err.println("Fehler beim Suchen der Ware: " + e.getMessage());
             try {
-                // Bei Fehler: Rollback
                 DatabaseConnection.getConnection().rollback();
             } catch (SQLException ex) {
                 System.err.println("Rollback fehlgeschlagen: " + ex.getMessage());
@@ -61,4 +158,101 @@ public class WarenRepository {
             return null;
         }
     }
-}
+    
+    public List<Ware> sucheWare(String suchbegriff) {
+        List<Ware> alleWaren = findAllWaren();
+        
+        return suchAlgorithmus.sucheWare(suchbegriff, alleWaren);
+    }
+    
+
+    // UPDATE
+
+
+    public boolean updateWare(Ware ware) {
+        try {
+            Connection connection = DatabaseConnection.getConnection();
+            
+            PreparedStatement statement = connection.prepareStatement(
+                "UPDATE waren SET name = ?, preis = ?, beschreibung = ? WHERE warennummer = ?"
+            );
+            
+            statement.setString(1, ware.getName());
+            statement.setFloat(2, ware.getPreis());
+            statement.setString(3, ware.getBeschreibung());
+            statement.setLong(4, ware.getWarennummer());
+            
+            int affectedRows = statement.executeUpdate();
+            
+            statement.close();
+            
+            if (affectedRows == 0) {
+                System.out.println("Ware mit nicht gefunden, wahrscheinlich haben selbst Tom und Oli diese ware nicht.");
+                connection.rollback();
+                return false;
+            }
+            
+            connection.commit();
+            return true;
+            
+        } catch (SQLException e) {
+            System.err.println("Fehler beim Aktualisieren der Ware: " + e.getMessage());
+            try {
+                DatabaseConnection.getConnection().rollback();
+            } catch (SQLException ex) {
+                System.err.println("Rollback fehlgeschlagen: " + ex.getMessage());
+            }
+            return false;
+        }
+    }
+
+    
+    // DELETE
+
+
+    public boolean deleteWare(long warenId) {
+        try {
+            Connection connection = DatabaseConnection.getConnection();
+            
+            PreparedStatement statement = connection.prepareStatement(
+                "DELETE FROM waren WHERE warennummer = ?"
+            );
+            
+            statement.setLong(1, warenId);
+            
+            int affectedRows = statement.executeUpdate();
+            
+            statement.close();
+            
+            if (affectedRows == 0) {
+                System.out.println("keine Ware gefunden, mir fällt aber auch kein weiterer Joke ein");
+                connection.rollback();
+                return false;
+            }
+            
+            connection.commit();
+            return true;
+            
+        } catch (SQLException e) {
+            System.err.println("Fehler beim Löschen der Ware: " + e.getMessage());
+            try {
+                DatabaseConnection.getConnection().rollback();
+            } catch (SQLException ex) {
+                System.err.println("Rollback fehlgeschlagen: " + ex.getMessage());
+            }
+            return false;
+        }
+    }
+    
+    // Hilfsmethode zur Konvertierung eines ResultSet in ein Ware-Objekt
+    private Ware mapResultSetToWare(ResultSet rs) throws SQLException {
+        long warennummer = rs.getLong("warennummer");
+        String name = rs.getString("name");
+        float preis = rs.getFloat("preis");
+        String beschreibung = rs.getString("beschreibung");
+        
+        Ware ware = new Ware(warennummer,name,preis,beschreibung);
+
+        
+        return ware;
+    }
