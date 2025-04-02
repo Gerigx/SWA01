@@ -126,7 +126,7 @@ public class WarenRepository {
             );
             statement.setLong(1, warenId);
 
-            long warenID;
+            long warenID = 0;
             
             ResultSet rs = statement.executeQuery();
             
@@ -256,3 +256,4 @@ public class WarenRepository {
         
         return ware;
     }
+}
