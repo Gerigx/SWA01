@@ -9,16 +9,33 @@ import org.apache.derby.impl.sql.GenericColumnDescriptor;
 import de.hsos.suchen.bl.*;;
 
 
-public class WarenRepository {
+public class WarenRepository implements Katalog {
     private WarenSuche suchAlgorithmus;
     
     public WarenRepository() {
         suchAlgorithmus = SuchAlgorithmus.getImplementation(SuchAlgorithmus.KEYWORD_MATCHING);
     }
-    
-    public void setSuchAlgorithmus(SuchAlgorithmus algo) {
-        this.suchAlgorithmus = SuchAlgorithmus.getImplementation(algo);
+
+    @Override
+    public void legeBuchungsAlgorithmusFest(SuchAlgorithmus suchAlgorithmus) {
+        this.suchAlgorithmus = SuchAlgorithmus.getImplementation(suchAlgorithmus);
     }
+
+    @Override
+    public Ware suchen(String warenname) {
+        return sucheWare(warenname);
+    }
+
+    @Override
+    public Ware suchen(Long warennumer) {
+        return findById(warennumer);
+    }
+
+    @Override
+    public void gebeProduktInformation(Ware ware) {
+        System.out.println(ware.getBeschreibung());
+    }
+
 
     public boolean testConnection() {
         try {
@@ -158,10 +175,21 @@ public class WarenRepository {
         }
     }
     
-    public List<Ware> sucheWare(String suchbegriff) {
+    public Ware sucheWare(String suchbegriff) {
         List<Ware> alleWaren = findAllWaren();
-        
-        return suchAlgorithmus.sucheWare(suchbegriff, alleWaren);
+
+        List<Ware> gefundeneWaren = suchAlgorithmus.sucheWare(suchbegriff, alleWaren);
+
+
+        try {            
+            if (gefundeneWaren.size() > 0) {
+                return suchAlgorithmus.sucheWare(suchbegriff, alleWaren).get(0);
+            }            
+        } catch (Exception e) {
+            System.err.println("Fehler beim Suchen der Ware: " + e.getMessage());
+            return null;
+        }
+        return null;    
     }
     
 
@@ -255,4 +283,6 @@ public class WarenRepository {
         
         return ware;
     }
+
+
 }
