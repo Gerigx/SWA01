@@ -32,10 +32,6 @@ public class ArtikelSuchenController {
                 // Suche nach ID
                 sucheNachId();
                 break;
-            case 2:
-                // Suche nach Stichwort
-                sucheNachStichwort();
-                break;
             case 3:
                 // Alle Artikel anzeigen
                 zeigeAlleArtikel();
@@ -64,37 +60,6 @@ public class ArtikelSuchenController {
         }
     }
 
-
-    private void sucheNachStichwort() {
-        String stichwort = leseString("Suchbegriff: ");
-        
-        if (stichwort.isEmpty()) {
-            view.zeigeFehlermeldung("Bitte geben Sie einen Suchbegriff ein.");
-            return;
-        }
-        
-        List<Artikel> ergebnisse = artikelSuchen.findeNachStichwort(stichwort);
-        
-        if (ergebnisse.isEmpty()) {
-            view.zeigeFehlermeldung("Keine Artikel mit dem Suchbegriff '" + stichwort + "' gefunden.");
-        } else {
-            view.zeigeArtikelListe(ergebnisse);
-            
-            // Option, einen Artikel im Detail anzusehen
-            view.zeigeDetailAuswahlOption();
-            boolean detailsAnzeigen = leseBestaetigung();
-            
-            if (detailsAnzeigen && !ergebnisse.isEmpty()) {
-                int indexWahl = leseIndexAuswahl(ergebnisse.size());
-                
-                if (indexWahl >= 0) {
-                    Artikel ausgewaehlterArtikel = ergebnisse.get(indexWahl);
-                    view.zeigeArtikelDetail(ausgewaehlterArtikel);
-                    
-                }
-            }
-        }
-    }
 
 
     private void zeigeAlleArtikel() {

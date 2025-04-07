@@ -2,6 +2,11 @@ package de.hsos.katalobVerwaltung.ui.view;
 
 import de.hsos.katalobVerwaltung.bl.Artikel;
 
+/*
+ * 
+ * Ausgabetext ist AI generiert, Methoden wurden selbst überlegt
+ * 
+ */
 
 public class ArtikelAendernView {
     
