@@ -11,41 +11,25 @@ import java.sql.*;
 
 
 public class KeywordMatching implements WarenSuche {
-
     
-        private final WarenRepository warenRepository;
-    
-        public KeywordMatching(WarenRepository warenRepository) {
-            this.warenRepository = warenRepository;
+    @Override
+    public List<Ware> sucheWare(String suchbegriff, List<Ware> alleWaren) {
+        if (suchbegriff == null || suchbegriff.trim().isEmpty() || alleWaren == null) {
+            return new ArrayList<>();
         }
         
-        @Override
-        public List<Ware> sucheWare(String suchbegriff) {
-            if (suchbegriff == null || suchbegriff.trim().isEmpty()) {
-                return new ArrayList<>();
+        List<Ware> gefundeneWaren = new ArrayList<>();
+        
+        String suchbegriffLowerCase = suchbegriff.toLowerCase().trim();
+        
+        for (Ware ware : alleWaren) {
+            if (ware.getName().toLowerCase().contains(suchbegriffLowerCase)) {
+                gefundeneWaren.add(ware);
+                continue;
             }
             
-            // Holen aller Waren aus dem Repository
-            List<Ware> alleWaren = warenRepository.findAllWaren();
-            List<Ware> gefundeneWaren = new ArrayList<>();
-            
-            // Einfache Keyword-Suche im Arbeitsspeicher
-            String suchbegriffLowerCase = suchbegriff.toLowerCase().trim();
-            
-            for (Ware ware : alleWaren) {
-                // Suche im Namen
-                if (ware.getName().toLowerCase().contains(suchbegriffLowerCase)) {
-                    gefundeneWaren.add(ware);
-                    continue;
-                }
-                
-                // Suche in der Beschreibung
-                if (ware.getBeschreibung().toLowerCase().contains(suchbegriffLowerCase)) {
-                    gefundeneWaren.add(ware);
-                }
-            }
-            
-            return gefundeneWaren;
         }
-
+        
+        return gefundeneWaren;
+    }
 }
