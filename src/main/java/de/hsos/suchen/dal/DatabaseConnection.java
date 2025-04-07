@@ -16,7 +16,7 @@ public class DatabaseConnection {
             try {
                 Class.forName(DRIVER);
                 connection = DriverManager.getConnection(CONNECTION_URL);
-                connection.setAutoCommit(false); // für 1.4
+                connection.setAutoCommit(false);
             } catch (ClassNotFoundException e) {
                 throw new SQLException("Derby JDBC driver not found", e);
             }
