@@ -3,8 +3,8 @@ package de.hsos.suchen.ui.suchen.controller;
 import java.util.ArrayList;
 
 import de.hsos.suchen.al.PruefeWare;
-import de.hsos.suchen.shared.Produktinformation;
-import de.hsos.suchen.shared.Ware;
+import de.hsos.suchen.bl.Produktinformation;
+import de.hsos.suchen.bl.Ware;
 import de.hsos.suchen.ui.suchen.view.PruefView;
 
 public class PruefController {
