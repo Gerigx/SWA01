@@ -2,7 +2,7 @@ package de.hsos.suchen.bl;
 
 import java.util.Objects;
 
-class Produktinformation {
+public class Produktinformation {
     private String bezeichnung;
     // Information ist richtig shit. es ist sooooo ungenau
     // todo: -ändern oder entfernen

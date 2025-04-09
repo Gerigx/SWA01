@@ -29,15 +29,12 @@ public class ArtikelSuchenController {
         
         switch (auswahl) {
             case 1:
-                // Suche nach ID
                 sucheNachId();
                 break;
             case 3:
-                // Alle Artikel anzeigen
                 zeigeAlleArtikel();
                 break;
             case 0:
-                // Zurück zum Hauptmenü
                 view.zeigeZurueckMeldung();
                 break;
             default:

@@ -1,41 +1,80 @@
 package de.hsos.suchen.ui.suchen.controller;
 
 import java.util.ArrayList;
+import java.util.Scanner;
 
-import de.hsos.suchen.al.PruefeWare;
+import de.hsos.suchen.al.EinkaueferIn;
 import de.hsos.suchen.bl.Produktinformation;
 import de.hsos.suchen.bl.Ware;
 import de.hsos.suchen.ui.suchen.view.PruefView;
 
 public class PruefController {
-    private PruefView pruefView =new PruefView(this);
-    private PruefeWare pruefeWare=null;
-    private Ware ware=null;
-    private SuchenStartController suchenStartController=null;
-    public PruefController(SuchenStartController suchenStartController, PruefeWare pruefeWare){
-        this.suchenStartController=suchenStartController;
-        this.pruefeWare=pruefeWare;
-    }
-    public void visitPruefView(Ware ware){
-        if(ware!=null){
-            this.ware=ware;
-            pruefView.startView(ware.getName());}
-        else{
-            pruefView.errorView();
-        }
-    }
-    
-    public void returnToMenu(){
-        suchenStartController.visitSuchenStartView();
+    private PruefView view;
+    private SuchenStartController mainController;
+    private EinkaueferIn einkaueferIn;
+    private Scanner scanner;
+    private Ware aktuelleWare;
+
+    public PruefController(SuchenStartController mainController, EinkaueferIn einkaueferIn) {
+        this.mainController = mainController;
+        this.einkaueferIn = einkaueferIn;
+        this.view = new PruefView();
+        this.scanner = new Scanner(System.in);
+        this.aktuelleWare = null;
     }
 
-    public ArrayList<String> getProduktInformationen(){
-        ArrayList<Produktinformation> produktinformationen=pruefeWare.holeDetailInformationen(ware);
-        ArrayList<String> informationen=new ArrayList<String>();
-        for(Produktinformation p :produktinformationen){
-            informationen.add(p.toString());
+    public void pruefenWare(Ware ware) {
+        if (ware == null) {
+            view.zeigeFehlermeldung("Keine Ware zum Prüfen ausgewählt.");
+            return;
         }
-        return informationen;
+        
+        this.aktuelleWare = ware;
+        
+        ArrayList<Produktinformation> produktInfos = einkaueferIn.holeDetailInformationen(ware);
+        
+        view.zeigeWareDetail(ware, produktInfos);
+        
+        zeigeOptionen();
     }
-    
+
+    private void zeigeOptionen() {
+        view.zeigeOptionen();
+        
+        int auswahl = leseInteger("Ihre Wahl: ");
+        
+        switch (auswahl) {
+            case 1:
+                boolean erfolg = einkaueferIn.wareZuWarenKorbHinzufügen(aktuelleWare);
+                if (erfolg) {
+                    view.zeigeErfolgsmeldung("Ware '" + aktuelleWare.getName() + "' wurde zum Warenkorb hinzugefügt.");
+                } else {
+                    view.zeigeFehlermeldung("Ware konnte nicht zum Warenkorb hinzugefügt werden.");
+                }
+                break;
+            case 0:
+                break;
+            default:
+                view.zeigeFehlermeldung("Ungültige Auswahl.");
+                break;
+        }
+    }
+
+    private int leseInteger(String prompt) {
+        int wert = 0;
+        boolean validInput = false;
+        
+        while (!validInput) {
+            try {
+                System.out.print(prompt);
+                String input = scanner.nextLine().trim();
+                wert = Integer.parseInt(input);
+                validInput = true;
+            } catch (NumberFormatException e) {
+                view.zeigeFehlermeldung("Bitte geben Sie eine gültige Zahl ein.");
+            }
+        }
+        
+        return wert;
+    }
 }

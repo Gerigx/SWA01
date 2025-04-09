@@ -1,44 +1,49 @@
 package de.hsos.suchen.ui.suchen.view;
 
 import java.util.ArrayList;
-import java.util.Scanner;
-
-import de.hsos.suchen.ui.suchen.controller.PruefController;
+import de.hsos.suchen.bl.Produktinformation;
+import de.hsos.suchen.bl.Ware;
 
 public class PruefView {
-    private Scanner scanner = new Scanner(System.in);
-    private PruefController pruefController=null;
-    public PruefView(PruefController pruefController){
-      this.pruefController=pruefController;
-    }
-    public void startView(String ware){
-      System.out.println("Informationen zu "+ware+":");
-      ArrayList<String> informationen=pruefController.getProduktInformationen();
-      for(String info: informationen){
-        System.out.println(info);
-      }
-       boolean validInput=false;
-       while(!validInput){
-        System.out.println("Kehre mit 1) zum Menü zurück");
-        int input=scanner.nextInt();
-        if(input==1){
-            validInput=true;
-            pruefController.returnToMenu();
-         }
-       }
-    }
-    public void errorView(){
     
-        boolean validInput= false;
-        while (!validInput) {
-            System.out.println("Keine Ware gefunden. Drücken sie 1) um zum Menü zurück zukehren");
-            int input=scanner.nextInt();
-          if(input==1){
-              validInput=true;
-              pruefController.returnToMenu();
-           }
-        
-         }
-    }
+  // text von sout per ai
 
+    public void zeigeWareDetail(Ware ware, ArrayList<Produktinformation> produktInfos) {
+        System.out.println("\n===== WARENPRÜFUNG =====");
+        System.out.println("ID: " + ware.getWarennummer());
+        System.out.println("Name: " + ware.getName());
+        System.out.println("Preis: " + ware.getPreis() + " €");
+        
+        if (ware.getBeschreibung() != null && !ware.getBeschreibung().isEmpty()) {
+            System.out.println("Beschreibung: " + ware.getBeschreibung());
+        }
+        
+        // Produktinformationen anzeigen
+        if (produktInfos != null && !produktInfos.isEmpty()) {
+            System.out.println("\nZusätzliche Produktinformationen:");
+            
+            for (Produktinformation info : produktInfos) {
+                System.out.println("- " + info.getBezeichnung() + ": " + info.getInformation());
+            }
+        } else {
+            System.out.println("\nKeine zusätzlichen Produktinformationen verfügbar.");
+        }
+        
+        System.out.println("===========================");
+    }
+    
+    public void zeigeOptionen() {
+        System.out.println("\nWas möchten Sie tun?");
+        System.out.println("1. Ware zum Warenkorb hinzufügen");
+        System.out.println("0. Zurück zum Suchen-Menü");
+        System.out.print("Ihre Wahl: ");
+    }
+    
+    public void zeigeFehlermeldung(String nachricht) {
+        System.out.println("\nFEHLER: " + nachricht);
+    }
+    
+    public void zeigeErfolgsmeldung(String nachricht) {
+        System.out.println("\nERFOLG: " + nachricht);
+    }
 }
